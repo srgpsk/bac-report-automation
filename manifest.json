@@ -1,6 +1,6 @@
 {
   "name": "Close Encounters of the Third Kind",
-  "description": "Helps BAC remote workers to fill out everyday Covid survey",
+  "description": "Helps BAC remote workers to fill out everyday Covid report",
   "manifest_version": 3,
   "version": "0.1",
   "permissions": [
