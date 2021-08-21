@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        body {
+            padding: 0;
+            margin: 0;
+        }
+
+        main {
+            background: #e3e3e3;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            width: 300px;
+            height: 200px;
+        }
+
+        p {
+            font-size: 2em;
+        }
+        .button {
+            max-width: 70%;
+            padding: 1em;
+            border-radius: 1em;
+            background-color: lightgreen;
+        }
+        .button:hover {
+            background-color: #5fd95f;
+        }
+
+    </style>
+</head>
+<body>
+<main>
+    <p>I worked entirely remotely<br>and didn't meet anyone.</p>
+    <button class="button" id="action">Click to process automatically</button>
+    <script src="popup.js"></script>
+</main>
+</body>
+</html>

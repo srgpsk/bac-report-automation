@@ -1,0 +1,32 @@
+{
+  "name": "Close Encounters of the Third Kind",
+  "description": "Helps BAC remote workers to fill out everyday Covid survey",
+  "manifest_version": 3,
+  "version": "0.1",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "alarms",
+    "notifications"
+  ],
+  "host_permissions": [
+    "*://*/*"
+  ],
+  "options_page": "options.html",
+  "action": {
+    "default_popup": "popup.html"
+  },
+  "background": {
+    "service_worker": "worker.js"
+  },
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "ringtone.mp3"
+      ],
+      "matches": [
+        "*://*/*"
+      ]
+    }
+  ]
+}
