@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Co-Worker Contact Report automation options</title>
+    <link rel="stylesheet" href="/assets/options.css">
+    <script defer src="/options.js"></script>
+</head>
+<body>
+<div class="container">
+    <h1 id="title"></h1>
+    <div class="block labels">
+        <label for="user-name">Your name: </label>
+        <label for="fire-time">Notification time: </label>
+        <label for="can-play">Play sound with notification: </label>
+        <span>Test the sound</span>
+    </div>
+    <div class="block inputs">
+        <input type="text" id="user-name" required>
+        <input type="time" id="fire-time" min="08:00" max="18:00" value="15:00">
+        <input type="checkbox" id="can-play" checked>
+        <span><i id="play-sound" class="icon-play"></i></span>
+    </div>
+    <div id="status"></div>
+    <button type="button" id="save">Save</button>
+</div>
+</body>
+</html>

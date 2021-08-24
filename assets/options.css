@@ -1,0 +1,109 @@
+.container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    box-sizing: border-box;
+    width: 50em;
+    border: 2px dashed #d3d3d3;
+    border-radius: 1em;
+    padding: 0 5em 5em;
+    margin: 5em;
+    font-size: 2em;
+}
+
+/*.container * {
+    outline: 1px solid red;
+}*/
+
+.container h1 {
+    margin-top: -.8em;
+    background: white;
+    padding: 0 1em;
+    font-size: 1.5em;
+    display: block;
+}
+
+.container h1::before {
+    content: "";
+    -webkit-mask: url(/assets/icon32.png) no-repeat 50% 50%;
+
+    background-size: contain;
+    background-color: #007bff;
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    vertical-align: middle;
+}
+
+.container .block {
+    display: flex;
+    flex-direction: column;
+    box-sizing: border-box;
+    width: 50%;
+    margin: 2em 0;
+    line-height: 2;
+}
+
+.container .labels {
+    text-align: right;
+    padding-right: 1em;
+}
+
+.container .inputs {
+    justify-content: space-between;
+}
+
+.container input {
+    height: 3em;
+    width: 50%;
+    padding: 0 .5em;
+}
+
+.container input[type=checkbox] {
+    height: 1.5em;
+    width: 1.5em;
+    margin: 0;
+}
+
+.container .icon-play {
+    -webkit-mask: url(/assets/icon-play.svg) no-repeat 50% 50%;
+    background-size: contain;
+    background-color: #007bff;
+    display: inline-block;
+    width: 1.5em;
+    height: 1.5em;
+    vertical-align: middle;
+}
+
+.container .icon-play:hover {
+    background-color: #0069d9;
+}
+
+.container button {
+    padding: .5em;
+    color: #fff;
+    background: #007bff;
+    border-color: #007bff;
+    border-radius: 2px;
+    font-size: 1.2em;
+}
+
+.container button:hover {
+    background: #0069d9;
+    border-color: #0069d9;
+}
+
+.container .invisible {
+    visibility: hidden;
+}
+
+.container #status {
+    flex: 0 0 100%;
+    text-align: center;
+}
+
+#status {
+    opacity: 1;
+    visibility: visible;
+    height: 2em;
+}
