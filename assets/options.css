@@ -11,9 +11,9 @@
     font-size: 2em;
 }
 
-/*.container * {
-    outline: 1px solid red;
-}*/
+.error {
+    outline: 2px solid red;
+}
 
 .container h1 {
     margin-top: -.8em;

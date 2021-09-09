@@ -1,7 +1,5 @@
 import {config} from "./config.js";
 
-const options = {};
-
 // event listeners
 document.getElementById('play-sound').addEventListener('click', play_sound);
 document.getElementById('save').addEventListener('click', save_options);
@@ -19,17 +17,28 @@ function play_sound() {
     }
 }
 
-function save_options() {
-    document.querySelectorAll('input').forEach(element => options[element.id] = 'checkbox' === element.type ? element.checked : element.value);
+const options = {};
 
-    chrome.storage.sync.set(options, function () {
-        // Update status to let user know options were saved.
-        const status = document.getElementById('status');
-        status.textContent = 'Options saved.';
-        setTimeout(function () {
-            status.textContent = '';
-        }, 1500);
-    });
+function save_options() {
+    let hasError = false;
+    const nodes = document.querySelectorAll('input');
+
+    for (let element of nodes.values()) {
+        let value = 'checkbox' === element.type ? element.checked : element.value;
+        if(element.required && !element.value) {
+            hasError = true;
+            break;
+        }
+
+        options[element.id] = value;
+    }
+
+    if(hasError) {
+        show_status(error);
+        return;
+    }
+
+    chrome.storage.sync.set(options, () => show_status(success));
 }
 
 function restore_options() {
@@ -41,4 +50,27 @@ function restore_options() {
             element[attr] = items[itemsKey];
         }
     });
+}
+
+function show_status(f) {
+    const status = document.getElementById('status');
+    const nodes = document.querySelectorAll('input[required]');
+    const cleanUp = () => setTimeout(function () {
+        status.textContent = '';
+    }, 1500);
+
+    return f(status, nodes, cleanUp);
+}
+
+function error(status, nodes, cleanUp) {
+    status.innerText = 'All required fields should be set.';
+    status.style.color = 'red';
+    nodes.forEach(el => el.classList.add('error'));
+}
+
+function success(status, nodes, cleanUp) {
+    status.innerText = 'Options saved.';
+    status.style.color = '#007bff';
+    nodes.forEach(el => el.classList.remove('error'));
+    cleanUp();
 }
