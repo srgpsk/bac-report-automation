@@ -1,62 +1,7 @@
+import {config} from "./config.js";
+
 // TODO handle promises where available
 let createdTabId;
-const DEBUG = true;
-const ALARM_NAME = 'bac-alarm';
-const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSc5L_sYsQFrO99g3b2XVbvOB6yC2O4XhdA1r6elGMrIvtw85Q/viewform';
-const NOTIFICATION = {
-    name: 'bac-survey-notification',
-    options: {
-        type: 'basic',
-        requireInteraction: true,
-        title: 'Close Encounters of the Third Kind',
-        message: 'I worked entirely remotely and didn\'t meet anyone.',
-        iconUrl: "/assets/icon16.png",
-        buttons: [
-            {
-                title: 'Click to process automatically'
-            }
-        ]
-    }
-};
-const INPUT_DATA = {
-    0: {
-        inputs: [
-            {
-                selector: '[name="entry.996775878"]',
-                value: 'Serge Paskal'//'OPTIONS.user-name'
-            },
-            {
-                selector: 'form .exportInput',
-                value: 'Serge Paskal'//'OPTIONS.user-name'
-            }
-        ]
-    },
-    1: {
-        inputs: [
-            {
-                selector: '[name="entry.1719434578_sentinel"]', // HZ. it generates a field without sentinel suffix somewhere inside
-                value: 'Yes -- TODAY'
-            },
-            {
-                selector: '[data-value="Yes -- TODAY"]',
-                value: null
-            }
-        ]
-    },
-    3: {
-        inputs: [
-            {
-                selector: '[name="entry.218650354_sentinel"]',
-                value: 'No - I worked entirely remotely'
-            },
-            {
-                selector: '[data-value="No - I worked entirely remotely"]',
-                value: null
-            }
-        ]
-    },
-
-};
 
 // listeners
 chrome.alarms.onAlarm.addListener(alarm_listener);
@@ -67,7 +12,7 @@ chrome.tabs.onRemoved.addListener(() => {})
 function alarm_listener(alarm) {
     log('Alarm listener executed. Alarm object: ', alarm);
 
-    if (ALARM_NAME !== alarm.name) {
+    if (config.alarmName !== alarm.name) {
         return false;
     }
 
@@ -80,7 +25,7 @@ function alarm_listener(alarm) {
 async function default_action_listener() {
     log('Default action called');
 
-    let tab = await chrome.tabs.create({url: FORM_URL})
+    let tab = await chrome.tabs.create({url: config.formUrl})
     if (!tab.url) await onTabUrlUpdated(tab.id); // chrome bug
 
     createdTabId = tab.id;
@@ -97,10 +42,11 @@ function tab_update_listener(tabId, changeInfo, tab) {
 }
 
 function inject_code(tabId) {
+    const inputData = config.inputData;
     return chrome.scripting.executeScript({
             target: {tabId: tabId},
-            args: [INPUT_DATA],
-            func: (INPUT_DATA) => {
+            args: [inputData],
+            func: (inputData) => {
 
                 console.info('code injected')
                 document.body.style.backgroundColor = 'red';
@@ -111,12 +57,12 @@ function inject_code(tabId) {
 
                 console.info(pageId)
 
-                if (!INPUT_DATA.hasOwnProperty(pageId)) {
+                if (!inputData.hasOwnProperty(pageId)) {
                     console.error(`Page Id ${pageId} not found in INPUT_DATA`);
                     return;
                 }
 
-                INPUT_DATA[pageId].inputs.forEach(dataObject => {
+                inputData[pageId].inputs.forEach(dataObject => {
 
                     console.info('selector: ', dataObject.selector, 'element by selector: ', document.querySelector(dataObject.selector));
 
@@ -161,8 +107,8 @@ function inject_code(tabId) {
 
 function show_notification(alarm, callback) {
     chrome.notifications.create(
-        NOTIFICATION.name,
-        NOTIFICATION.options,
+        config.notification.name,
+        config.notification.options,
         callback
     );
 }
@@ -187,11 +133,11 @@ function create_alarm(scheduledTime, periodInMinutes) {
         alarmInfo.periodInMinutes = periodInMinutes;
     }
 
-    chrome.alarms.create(ALARM_NAME, alarmInfo)
+    chrome.alarms.create(config.alarmName, alarmInfo)
 }
 
 function log(message, ...args) {
-    if (!DEBUG) {
+    if (!config.debug) {
         return false;
     }
 

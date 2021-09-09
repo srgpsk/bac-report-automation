@@ -1,22 +1,21 @@
-const options = {};
-const manifest = chrome.runtime.getManifest();
+import {config} from "./config.js";
 
-// set options page title
-document.getElementById('title').innerText = `${manifest.name} options`;
+const options = {};
 
 // event listeners
 document.getElementById('play-sound').addEventListener('click', play_sound);
 document.getElementById('save').addEventListener('click', save_options);
 document.addEventListener('DOMContentLoaded', restore_options);
 
+// set options page title
+document.getElementById('title').innerText = `${config.name} options`;
 
 function play_sound() {
-    const soundFile = manifest.web_accessible_resources[0].resources.find(e => e.includes('mp3'));
+    const soundFile = config.manifest.web_accessible_resources[0].resources.find(e => e.includes('mp3'));
     if (soundFile) {
         new Audio(soundFile).play();
         //    TODO animate icon on play
         // this.querySelector("path:nth-of-type(1)").classList.toggle("invisible");
-
     }
 }
 
