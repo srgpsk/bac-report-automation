@@ -1,9 +1,9 @@
 .container {
     display: flex;
     flex-wrap: wrap;
+    max-width:50em;
     justify-content: center;
     box-sizing: border-box;
-    width: 50em;
     border: 2px dashed #d3d3d3;
     border-radius: 1em;
     padding: 0 5em 5em;
