@@ -1,60 +1,84 @@
-import {config} from "./config.js";
+import {config} from './config.js';
 
 // event listeners
-document.getElementById('play-sound').addEventListener('click', play_sound);
-document.getElementById('save').addEventListener('click', save_options);
-document.addEventListener('DOMContentLoaded', restore_options);
+document.getElementById('play-sound').addEventListener('click', playSound);
+document.getElementById('save').addEventListener('click', saveOptions);
+document.addEventListener('DOMContentLoaded', restoreOptions);
 
 // set options page title
 document.getElementById('title').innerText = `${config.name} options`;
 
-function play_sound() {
+function playSound() {
     const soundFile = config.manifest.web_accessible_resources[0].resources.find(e => e.includes('mp3'));
     if (soundFile) {
         new Audio(soundFile).play();
         //    TODO animate icon on play
-        // this.querySelector("path:nth-of-type(1)").classList.toggle("invisible");
+        // this.querySelector('path:nth-of-type(1)').classList.toggle('invisible');
     }
 }
 
 const options = {};
 
-function save_options() {
+function saveOptions() {
     let hasError = false;
-    const nodes = document.querySelectorAll('input');
+    const nodes = document.querySelectorAll('[name]');
 
     for (let element of nodes.values()) {
         let value = 'checkbox' === element.type ? element.checked : element.value;
-        if(element.required && !element.value) {
+        if (element.required && !element.value) {
             hasError = true;
             break;
         }
 
-        options[element.id] = value;
+        // handle array of names
+        if (element.name.includes('[]') && !options.hasOwnProperty(element.name)) {
+            options[element.name] = [];
+        }
+        Array.isArray(options[element.name]) ? options[element.name].push(value) : options[element.name] = value;
     }
 
-    if(hasError) {
-        show_status(error);
+    if (hasError) {
+        showStatus(error);
         return;
     }
-
-    chrome.storage.sync.set(options, () => show_status(success));
+    // chrome.storage.sync.clear();
+    chrome.storage.sync.set(options, () => showStatus(success));
 }
 
-function restore_options() {
+function restoreOptions() {
     chrome.storage.sync.get(null, function (items) {
-        console.log(items)
-        for (const itemsKey in items) {
-            const element = document.getElementById(itemsKey);
+        console.log('stored items: ', items);
+
+        const setValue = (element, value) => {
             const attr = 'checkbox' === element.type ? 'checked' : 'value';
-            element[attr] = items[itemsKey];
+            element[attr] = value;
+        }
+
+        for (const itemsKey in items) {
+            let selector = `[name="${itemsKey}"]`;
+
+            // handle inputs with name[]
+            if (itemsKey.includes('[]')) {
+                items[itemsKey].forEach((value, index) => {
+                    const valueSelector = selector + `[value="${index}"]`;
+                    const element = document.querySelector(valueSelector);
+                    setValue(element, value);
+                });
+
+                // exit array traversal
+                continue;
+            }
+
+            // scalar values set
+            const element = document.querySelector(selector);
+            setValue(element, items[itemsKey])
         }
     });
 }
 
-function show_status(f) {
+function showStatus(f) {
     const status = document.getElementById('status');
-    const nodes = document.querySelectorAll('input[required]');
+    const nodes = document.querySelectorAll('[required]');
     const cleanUp = () => setTimeout(function () {
         status.textContent = '';
     }, 1500);
@@ -62,10 +86,10 @@ function show_status(f) {
     return f(status, nodes, cleanUp);
 }
 
-function error(status, nodes, cleanUp) {
+function error(status, nodes) {
     status.innerText = 'All required fields should be set.';
     status.style.color = 'red';
-    nodes.forEach(el => el.classList.add('error'));
+    nodes.forEach(el => !el.value && el.classList.add('error'));
 }
 
 function success(status, nodes, cleanUp) {

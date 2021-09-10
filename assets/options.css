@@ -1,13 +1,15 @@
 .container {
     display: flex;
-    flex-wrap: wrap;
-    max-width:50em;
+    flex-direction: column;
     justify-content: center;
     box-sizing: border-box;
     border: 2px dashed #d3d3d3;
     border-radius: 1em;
-    padding: 0 5em 5em;
-    margin: 5em;
+}
+
+.main {
+    padding: 0 2% 2%;
+    margin: 2%;
     font-size: 2em;
 }
 
@@ -20,7 +22,7 @@
     background: white;
     padding: 0 1em;
     font-size: 1.5em;
-    display: block;
+    width: fit-content;
 }
 
 .container h1::before {
@@ -35,28 +37,61 @@
     vertical-align: middle;
 }
 
-.container .block {
+.container .row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    padding: .5em 0;
+}
+
+.container .row .col {
+    display: flex;
+    align-items: center;
+}
+
+.container .row .col:first-child {
+    width: 30%;
+    justify-content: right;
+    margin-right: 1em;
+}
+
+.container .row .col:last-child {
+    width: 70%;
+    justify-content: left;
+    margin-left: 1em;
+}
+
+.container .row .col-auto {
+    flex: 1 0 auto;
     display: flex;
     flex-direction: column;
-    box-sizing: border-box;
-    width: 50%;
-    margin: 2em 0;
-    line-height: 2;
+    align-items: center;
 }
 
-.container .labels {
-    text-align: right;
-    padding-right: 1em;
-}
-
-.container .inputs {
-    justify-content: space-between;
-}
-
-.container input {
-    height: 3em;
-    width: 50%;
+.weekdays {
     padding: 0 .5em;
+}
+
+.weekdays label {
+    font-size: 1em;
+    text-transform: capitalize;
+    margin-bottom: .5em;
+}
+
+.weekdays .row {
+    flex-wrap: wrap;
+}
+
+.weekdays .row .col-auto {
+    margin-right: 1em;
+}
+
+.container input:not([type="checkbox"]),
+.container select {
+    height: 3em;
+    padding: 0 .5em;
+    font-size: .7em;
+    min-width: 12%;
 }
 
 .container input[type=checkbox] {

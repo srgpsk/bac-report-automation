@@ -7,22 +7,71 @@
     <script type="module" src="/src/options.js"></script>
 </head>
 <body>
-<div class="container">
+<div id="app" class="container main">
     <h1 id="title"></h1>
-    <div class="block labels">
-        <label for="user-name">Your name: </label>
-        <label for="fire-time">Notification time: </label>
-        <label for="can-play">Play sound with notification: </label>
-        <span>Test the sound</span>
+    <div class="row">
+        <div class="col"><label for="user-name">Your name: </label></div>
+        <div class="col"><input type="text" id="user-name" name="username" required></div>
     </div>
-    <div class="block inputs">
-        <input type="text" id="user-name" required>
-        <input type="time" id="fire-time" min="08:00" max="18:00" value="15:00" required>
-        <input type="checkbox" id="can-play" checked>
-        <span><i id="play-sound" class="icon-play"></i></span>
+    <div class="row">
+        <div class="col"><label>Notification days: </label></div>
+        <div class="col">
+            <div class="container weekdays">
+                <div class="row">
+                    <div class="col-auto">
+                        <label for="sunday">sunday</label>
+                        <input type="checkbox" id="sunday" name="notificationDays[]" value="0">
+                    </div>
+                    <div class="col-auto">
+                        <label for="monday">monday</label>
+                        <input type="checkbox" id="monday" name="notificationDays[]" value="1" checked>
+                    </div>
+                    <div class="col-auto">
+                        <label for="tuesday">tuesday</label>
+                        <input type="checkbox" id="tuesday" name="notificationDays[]" value="2" checked>
+                    </div>
+                    <div class="col-auto">
+                        <label for="wednesday">wednesday</label>
+                        <input type="checkbox" id="wednesday" name="notificationDays[]" value="3" checked>
+                    </div>
+                    <div class="col-auto">
+                        <label for="thursday">thursday</label>
+                        <input type="checkbox" id="thursday" name="notificationDays[]" value="4" checked>
+                    </div>
+                    <div class="col-auto">
+                        <label for="friday">friday</label>
+                        <input type="checkbox" id="friday" name="notificationDays[]" value="5" checked>
+                    </div>
+                    <div class="col-auto">
+                        <label for="saturday">saturday</label>
+                        <input type="checkbox" id="saturday" name="notificationDays[]" value="6">
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="status"></div>
-    <button type="button" id="save">Save</button>
+    <div class="row">
+        <div class="col"><label for="fire-time">Notification time: </label></div>
+        <div class="col"><input type="time" id="fire-time" name="notificationTime" value="15:00" required></div>
+    </div>
+    <div class="row">
+        <div class="col"><label for="default-action">Default action:</label></div>
+        <div class="col"><select id="default-action" name="defaultAction" required></select></div>
+    </div>
+    <div class="row">
+        <div class="col"><label for="can-play">Play sound with notification: </label></div>
+        <div class="col"><input type="checkbox" id="can-play" name="canPlay" checked></div>
+    </div>
+    <div class="row">
+        <div class="col"><span>Test the sound</span></div>
+        <div class="col"><span><i id="play-sound" class="icon-play"></i></span></div>
+    </div>
+    <div class="row">
+        <div class="col-auto">
+            <div id="status"></div>
+            <button type="button" id="save">Save</button>
+        </div>
+    </div>
 </div>
 </body>
 </html>
