@@ -1,4 +1,5 @@
 import {config} from "./config.js";
+import {utils} from "./utils.js";
 
 // TODO handle promises where available
 let createdTabId;
@@ -18,7 +19,7 @@ function alarmListener(alarm) {
 
     showNotification(alarm, () => {
         log('Notification showed');
-        playSound();
+        utils.playSound();
     });
 }
 
@@ -113,15 +114,8 @@ function showNotification(alarm, callback) {
     );
 }
 
-async function playSound() {
-    const tabs = await chrome.tabs.query({active: true})
-    await chrome.scripting.executeScript({
-        target: {tabId: tabs[0].id},
-        func: () => {
-            // TODO read from manifest! import options?
-            new Audio(config.soundFile).play();
-        }
-    })
+if (config.debug) {
+    createAlarm(null, 0.2);
 }
 
 function createAlarm(scheduledTime, periodInMinutes) {

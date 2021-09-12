@@ -1,21 +1,13 @@
 import {config} from './config.js';
+import {utils} from "./utils.js";
 
 // event listeners
-document.getElementById('play-sound').addEventListener('click', playSound);
+document.getElementById('play-sound').addEventListener('click', utils.playSound);
 document.getElementById('save').addEventListener('click', saveOptions);
 document.addEventListener('DOMContentLoaded', restoreOptions);
 
 // set options page title
 document.getElementById('title').innerText = `${config.name} options`;
-
-function playSound() {
-    const soundFile = config.manifest.web_accessible_resources[0].resources.find(e => e.includes('mp3'));
-    if (soundFile) {
-        new Audio(soundFile).play();
-        //    TODO animate icon on play
-        // this.querySelector('path:nth-of-type(1)').classList.toggle('invisible');
-    }
-}
 
 const options = {};
 

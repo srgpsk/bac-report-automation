@@ -65,7 +65,7 @@ const config = Object.freeze({
     },
 
     get soundFile() {
-       return this.manifest.web_accessible_resources[0].resources.find(el => el.includes('mp3'))
+       return this.manifest.web_accessible_resources[0].resources.find(el => el.includes('mp3'));
     }
 
 });
