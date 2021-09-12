@@ -3,7 +3,7 @@
   "description": "Helps BAC workers to fill out everyday Covid report",
   "manifest_version": 3,
   "version": "0.1",
-  "minimum_chrome_version": "91.*",
+  "minimum_chrome_version": "91",
   "author": "Serhio Maria Diego Pascuale",
   "permissions": [
     "activeTab",
