@@ -60,6 +60,14 @@ const config = Object.freeze({
 
     },
 
+    get manifest() {
+        return chrome.runtime.getManifest();
+    },
+
+    get soundFile() {
+       return this.manifest.web_accessible_resources[0].resources.find(el => el.includes('mp3'))
+    }
+
 });
 
 export {config};

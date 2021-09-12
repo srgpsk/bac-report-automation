@@ -119,7 +119,7 @@ async function playSound() {
         target: {tabId: tabs[0].id},
         func: () => {
             // TODO read from manifest! import options?
-            new Audio(chrome.runtime.getURL('/assets/ringtone.mp3')).play();
+            new Audio(config.soundFile).play();
         }
     })
 }
