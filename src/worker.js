@@ -4,44 +4,44 @@ import {config} from "./config.js";
 let createdTabId;
 
 // listeners
-chrome.alarms.onAlarm.addListener(alarm_listener);
-chrome.notifications.onButtonClicked.addListener(default_action_listener)
-chrome.tabs.onUpdated.addListener(tab_update_listener)
+chrome.alarms.onAlarm.addListener(alarmListener);
+chrome.notifications.onButtonClicked.addListener(defaultActionListener)
+chrome.tabs.onUpdated.addListener(tabUpdateListener)
 chrome.tabs.onRemoved.addListener(() => {})
 
-function alarm_listener(alarm) {
+function alarmListener(alarm) {
     log('Alarm listener executed. Alarm object: ', alarm);
 
     if (config.alarmName !== alarm.name) {
         return false;
     }
 
-    show_notification(alarm, () => {
+    showNotification(alarm, () => {
         log('Notification showed');
-        play_sound();
+        playSound();
     });
 }
 
-async function default_action_listener() {
+async function defaultActionListener() {
     log('Default action called');
 
     let tab = await chrome.tabs.create({url: config.formUrl})
     if (!tab.url) await onTabUrlUpdated(tab.id); // chrome bug
 
     createdTabId = tab.id;
-    await inject_code(tab.id);
+    await injectcode(tab.id);
 }
 
-function tab_update_listener(tabId, changeInfo, tab) {
+function tabUpdateListener(tabId, changeInfo, tab) {
     if (tabId !== createdTabId || changeInfo.status !== 'complete') {
         return;
     }
 
     console.log('tab updated', tabId, changeInfo, tab)
-    inject_code(tabId)
+    injectcode(tabId)
 }
 
-function inject_code(tabId) {
+function injectcode(tabId) {
     const inputData = config.inputData;
     return chrome.scripting.executeScript({
             target: {tabId: tabId},
@@ -105,7 +105,7 @@ function inject_code(tabId) {
         });
 }
 
-function show_notification(alarm, callback) {
+function showNotification(alarm, callback) {
     chrome.notifications.create(
         config.notification.name,
         config.notification.options,
@@ -113,7 +113,7 @@ function show_notification(alarm, callback) {
     );
 }
 
-async function play_sound() {
+async function playSound() {
     const tabs = await chrome.tabs.query({active: true})
     await chrome.scripting.executeScript({
         target: {tabId: tabs[0].id},
@@ -124,7 +124,7 @@ async function play_sound() {
     })
 }
 
-function create_alarm(scheduledTime, periodInMinutes) {
+function createAlarm(scheduledTime, periodInMinutes) {
     const alarmInfo = {};
     if (scheduledTime) {
         alarmInfo.scheduledTime = scheduledTime;
