@@ -1,4 +1,20 @@
-const config = Object.freeze({
+// docs example
+const storageCache = {};
+const initStorageCache = getAllStorageSyncData().then(items => {
+    Object.assign(storageCache, items);
+});
+function getAllStorageSyncData() {
+    return new Promise((resolve, reject) => {
+        chrome.storage.sync.get(null, (items) => {
+            if (chrome.runtime.lastError) {
+                return reject(chrome.runtime.lastError);
+            }
+            resolve(items);
+        });
+    });
+}
+
+export const config = Object.freeze({
     debug: true,
     name: 'Close Encounters of the Third Kind',
     alarmName: `bac-alarm`,
@@ -60,14 +76,17 @@ const config = Object.freeze({
 
     },
 
+     getOptionsAsync: async function () {
+        await initStorageCache;
+        return storageCache;
+    },
+
     get manifest() {
         return chrome.runtime.getManifest();
     },
 
     get soundFile() {
-       return this.manifest.web_accessible_resources[0].resources.find(el => el.includes('mp3'));
-    }
+        return this.manifest.web_accessible_resources[0].resources.find(el => el.includes('mp3'));
+    },
 
 });
-
-export {config};
