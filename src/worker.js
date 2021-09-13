@@ -8,13 +8,20 @@ let createdTabId;
 chrome.alarms.onAlarm.addListener(alarmListener);
 chrome.notifications.onButtonClicked.addListener(defaultActionListener)
 chrome.tabs.onUpdated.addListener(tabUpdateListener)
-chrome.tabs.onRemoved.addListener(() => {})
+chrome.tabs.onRemoved.addListener(() => {});
 
-function alarmListener(alarm) {
+async function alarmListener(alarm) {
     log('Alarm listener executed. Alarm object: ', alarm);
 
     if (config.alarmName !== alarm.name) {
         return false;
+    }
+
+    // fire notification only during selected days
+    const options = await config.getOptionsAsync();
+    const currentDay = new Date().getDay();
+    if(!options['notificationDays[]'].includes(currentDay)) {
+        return;
     }
 
     showNotification(alarm, () => {
@@ -115,7 +122,7 @@ function showNotification(alarm, callback) {
 }
 
 if (config.debug) {
-    createAlarm(null, 0.2);
+    createAlarm(null, 0.1);
 }
 
 function createAlarm(scheduledTime, periodInMinutes) {
