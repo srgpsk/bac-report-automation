@@ -38,10 +38,13 @@ function saveOptions() {
 }
 
 function restoreOptions() {
+    populateActions();
+
     chrome.storage.sync.get(null, function (items) {
         console.log('stored items: ', items);
 
         const setValue = (element, value) => {
+            console.log(element)
             const attr = 'checkbox' === element.type ? 'checked' : 'value';
             element[attr] = value;
         }
@@ -66,6 +69,19 @@ function restoreOptions() {
             setValue(element, items[itemsKey])
         }
     });
+}
+
+function populateActions() {
+    const actions = [];
+    config.actions.forEach(action => {
+        const element = document.createElement('option');
+        element.value = action;
+        element.innerText = action;
+
+        actions.push(element);
+    });
+
+    document.getElementById('default-action').append(...actions);
 }
 
 function showStatus(f) {

@@ -36,6 +36,13 @@ export const config = Object.freeze({
         }
     },
 
+    actions: [
+        'Yes (includes outside of work)',
+        'No - I worked on site, but didn\'t have any contact)',
+        'No - I worked entirely remotely',
+        'No - it was my day off, and I didn\'t see anybody',
+    ],
+
     inputData: {
         0: {
             inputs: [
