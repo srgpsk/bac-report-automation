@@ -32,11 +32,7 @@ function scheduleAlarm(hours, minutes) {
     alarmDate.setDate(day);
 
     chrome.alarms.create(config.alarmName, {when: alarmDate.getTime()});
-    console.log('Alarm scheduled on ', alarmDate.toString())
-}
-
-function createAlarm(timestamp) {
-    chrome.alarms.create(config.alarmName, {when: timestamp});
+    console.log('Alarm scheduled on ', alarmDate.toString());
 }
 
 async function alarmListener(alarm) {
