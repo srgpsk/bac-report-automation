@@ -5,10 +5,39 @@ import {utils} from "./utils.js";
 let createdTabId;
 
 // listeners
+chrome.storage.onChanged.addListener(storageValueChangedListener)
 chrome.alarms.onAlarm.addListener(alarmListener);
 chrome.notifications.onButtonClicked.addListener(defaultActionListener)
 chrome.tabs.onUpdated.addListener(tabUpdateListener)
 chrome.tabs.onRemoved.addListener(() => {});
+
+function storageValueChangedListener(changes, areaName) {
+    if (!changes.hasOwnProperty('notificationTime') || 'sync' !== areaName) {
+        return;
+    }
+
+    // re-schedule alarm on time update in options
+    const [timeHours, timeMinutes] = changes.notificationTime.newValue.split(':');
+    scheduleAlarm(+timeHours, +timeMinutes);
+}
+
+function scheduleAlarm(hours, minutes) {
+    const alarmDate = new Date();
+    alarmDate.setHours(hours);
+    alarmDate.setMinutes(minutes);
+    alarmDate.setSeconds(0);
+
+    // if time passed in params is in the past. We schedule the alarm for the next day
+    const day = Date.now() > alarmDate.getTime() ? alarmDate.getDate() + 1 : alarmDate.getDate();
+    alarmDate.setDate(day);
+
+    chrome.alarms.create(config.alarmName, {when: alarmDate.getTime()});
+    console.log('Alarm scheduled on ', alarmDate.toString())
+}
+
+function createAlarm(timestamp) {
+    chrome.alarms.create(config.alarmName, {when: timestamp});
+}
 
 async function alarmListener(alarm) {
     log('Alarm listener executed. Alarm object: ', alarm);
@@ -20,11 +49,15 @@ async function alarmListener(alarm) {
     // fire notification only during selected days
     const options = await config.getOptionsAsync();
     const currentDay = new Date().getDay();
-    if(!options['notificationDays[]'].includes(currentDay)) {
+    if (!options['notificationDays[]'].includes(currentDay)) {
         return;
     }
 
-    showNotification(alarm, () => {
+    // browser may delay the alarm, so for the next day we set it at the original time
+    const [timeHours, timeMinutes] = options.notificationTime.split(':');
+    scheduleAlarm(+timeHours, +timeMinutes);
+
+    showNotification(() => {
         log('Notification showed');
         utils.playSound();
     });
@@ -113,28 +146,12 @@ function injectcode(tabId) {
         });
 }
 
-function showNotification(alarm, callback) {
+function showNotification(callback) {
     chrome.notifications.create(
         config.notification.name,
         config.notification.options,
         callback
     );
-}
-
-if (config.debug) {
-    createAlarm(null, 0.1);
-}
-
-function createAlarm(scheduledTime, periodInMinutes) {
-    const alarmInfo = {};
-    if (scheduledTime) {
-        alarmInfo.scheduledTime = scheduledTime;
-    }
-    if (periodInMinutes) {
-        alarmInfo.periodInMinutes = periodInMinutes;
-    }
-
-    chrome.alarms.create(config.alarmName, alarmInfo)
 }
 
 function log(message, ...args) {
