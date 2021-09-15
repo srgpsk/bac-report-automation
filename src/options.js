@@ -9,11 +9,12 @@ document.addEventListener('DOMContentLoaded', restoreOptions);
 // set options page title
 document.getElementById('title').innerText = `${config.name} options`;
 
-const options = {};
 
 function saveOptions() {
     let hasError = false;
     const nodes = document.querySelectorAll('[name]');
+    const options = {};
+
 
     for (let element of nodes.values()) {
         let value = 'checkbox' === element.type ? element.checked : element.value;
