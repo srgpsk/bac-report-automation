@@ -45,27 +45,27 @@ async function alarmListener(alarm) {
     }
 
     // fire notification only during selected days
-    const options = await config.getOptionsAsync();
+    const userOptions = await config.getOptionsAsync();
     const currentDay = new Date().getDay();
-    if (!options['notificationDays[]'][currentDay]) {
+    if (!userOptions['notificationDays[]'][currentDay]) {
         return;
     }
 
     // browser may delay the alarm, so for the next day we set it at the original time
-    const [timeHours, timeMinutes] = options.notificationTime.split(':');
+    const [timeHours, timeMinutes] = userOptions.notificationTime.split(':');
     scheduleAlarm(+timeHours, +timeMinutes);
 
     // global config is immutable
     const notificationOptions = {};
     Object.assign(notificationOptions, config.notification.options);
-    notificationOptions.buttons[0].title = options.defaultAction;
+    notificationOptions.buttons[0].title = userOptions.defaultAction;
 
     showNotification(
         config.notification.name,
         notificationOptions,
         function () {
-            log('Notification showed. Can play: ' + options.canPlay);
-            if (!options.canPlay) {
+            log('Notification showed. Can play: ' + userOptions.canPlay);
+            if (!userOptions.canPlay) {
                 return;
             }
             utils.playSound();
