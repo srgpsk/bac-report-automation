@@ -16,6 +16,8 @@ function storageValueChangedListener(changes, areaName) {
         return;
     }
 
+    console.log('changes ', changes);
+
     // re-schedule alarm on time update in options
     const [timeHours, timeMinutes] = changes.notificationTime.newValue.split(':');
     scheduleAlarm(+timeHours, +timeMinutes);
@@ -45,7 +47,7 @@ async function alarmListener(alarm) {
     // fire notification only during selected days
     const options = await config.getOptionsAsync();
     const currentDay = new Date().getDay();
-    if (!options['notificationDays[]'].includes(currentDay)) {
+    if (!options['notificationDays[]'][currentDay]) {
         return;
     }
 
@@ -53,10 +55,21 @@ async function alarmListener(alarm) {
     const [timeHours, timeMinutes] = options.notificationTime.split(':');
     scheduleAlarm(+timeHours, +timeMinutes);
 
-    showNotification(() => {
-        log('Notification showed');
-        utils.playSound();
-    });
+    // global config is immutable
+    const notificationOptions = {};
+    Object.assign(notificationOptions, config.notification.options);
+    notificationOptions.buttons[0].title = options.defaultAction;
+
+    showNotification(
+        config.notification.name,
+        notificationOptions,
+        function () {
+            log('Notification showed. Can play: ' + options.canPlay);
+            if (!options.canPlay) {
+                return;
+            }
+            utils.playSound();
+        });
 }
 
 async function defaultActionListener() {
@@ -142,10 +155,10 @@ function injectcode(tabId) {
         });
 }
 
-function showNotification(callback) {
+function showNotification(name, options, callback) {
     chrome.notifications.create(
-        config.notification.name,
-        config.notification.options,
+        name,
+        options,
         callback
     );
 }
