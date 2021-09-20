@@ -1,0 +1,20 @@
+body {
+    background-color: rgba(0, 128, 0, .3)!important;
+}
+
+form.stamp {
+    position: relative;
+}
+
+form.stamp::after {
+    content: 'Possesed by aliens';
+    letter-spacing: 2px;
+    border: 5px solid green;
+    border-radius: 10px;
+    color: green;
+    padding: 1em;
+    position: absolute;
+    right: 10em;
+    bottom: 10em;
+    transform: rotate(-30deg);
+}

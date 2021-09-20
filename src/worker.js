@@ -122,13 +122,17 @@ async function injectCode(tabId) {
           }*/
     ];
 
-    return chrome.scripting.executeScript({
+    await chrome.scripting.insertCSS({
+        target: {tabId: tabId},
+        files: ['assets/content.css']
+    });
+
+    await chrome.scripting.executeScript({
             target: {tabId: tabId},
             args: [inputData],
             func: async (inputData) => {
 
                 console.log('code injected')
-                document.body.style.backgroundColor = 'red';
 
                 const pageHistoryString = document.querySelector('[name=pageHistory]').value;
                 const pageId = parseInt(pageHistoryString.slice(pageHistoryString.lastIndexOf(',') + 1));
@@ -148,6 +152,8 @@ async function injectCode(tabId) {
 
                     // todo move to dom observer
                     await sleep(1000);
+
+                    document.forms[0].classList.add('stamp');
 
                     // manually populate input[type=hidden] (sentinel)
                     if (dataObject.populateHidden && !Array.isArray(dataObject.value)) {
