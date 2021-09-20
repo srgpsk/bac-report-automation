@@ -28,46 +28,6 @@ export const config = Object.freeze({
         'No - it was my day off, and I didn\'t see anybody',
     ],
 
-    inputData: {
-        0: {
-            inputs: [
-                {
-                    selector: '[name="entry.996775878"]',
-                    value: 'Serge Paskal'//'OPTIONS.user-name'
-                },
-                {
-                    selector: 'form .exportInput',
-                    value: 'Serge Paskal'//'OPTIONS.user-name'
-                }
-            ]
-        },
-        1: {
-            inputs: [
-                {
-                    selector: '[name="entry.1719434578_sentinel"]',
-                    value: 'Yes -- TODAY'
-                },
-                {
-                    selector: '[data-value="Yes -- TODAY"]',
-                    value: null
-                }
-            ]
-        },
-        3: {
-            inputs: [
-                {
-                    selector: '[name="entry.218650354_sentinel"]',
-                    value: 'No - I worked entirely remotely'
-                },
-                {
-                    selector: '[data-value="No - I worked entirely remotely"]',
-                    value: null
-                }
-            ]
-        },
-
-    },
-
     getOptionsAsync: async function () {
         await initStorageCache;
         return storageCache;
