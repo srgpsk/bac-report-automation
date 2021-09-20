@@ -151,7 +151,7 @@ async function injectCode(tabId) {
                     console.log('pageId matched.');
 
                     // todo move to dom observer
-                    await sleep(1000);
+                    await sleep(1500);
 
                     document.forms[0].classList.add('stamp');
 
