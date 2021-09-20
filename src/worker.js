@@ -120,6 +120,9 @@ async function injectCode(tabId) {
               populateHidden: false,
               handleVisualByValue: true,
           }*/
+        {
+            pageId: -3,
+        }
     ];
 
     await chrome.scripting.insertCSS({
@@ -139,31 +142,28 @@ async function injectCode(tabId) {
                 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
 
                 console.log('DOM pageId:', pageId, 'inputData ', inputData);
+                console.log('Input Data loop starts here');
 
-                for (let dataObject of inputData) {
+                // todo move to dom observer
+                await sleep(1500);
 
-                    console.log(dataObject);
+                const dataObject = inputData.find(dataObject => dataObject.pageId === pageId);
+                console.log('pageId matched. dataObject in the Input Data: ', dataObject);
 
-                    if (dataObject.pageId !== pageId) {
-                        continue;
-                    }
+                // dumb fun
+                document.forms[0].classList.add('stamp');
 
-                    console.log('pageId matched.');
+                // manually populate input[type=hidden] (sentinel)
+                if (dataObject.populateHidden && !Array.isArray(dataObject.value)) {
+                    // Array.from(document.querySelectorAll('input[type="hidden"]')).find(el => /^entry.*_sentinel$/.test(el.name)).value = dataObject.value;
 
-                    // todo move to dom observer
-                    await sleep(1500);
+                    // todo take a closer look on that sentinel
+                    // for now set all hidden with one value
+                    Array.from(document.querySelectorAll('input[type="hidden"]')).filter(el => /^entry.*/.test(el.name)).forEach(el => el.value = dataObject.value);
+                }
 
-                    document.forms[0].classList.add('stamp');
-
-                    // manually populate input[type=hidden] (sentinel)
-                    if (dataObject.populateHidden && !Array.isArray(dataObject.value)) {
-                        // Array.from(document.querySelectorAll('input[type="hidden"]')).find(el => /^entry.*_sentinel$/.test(el.name)).value = dataObject.value;
-
-                        // todo take a closer look on that sentinel
-                        // for now set all hidden with one value
-                        Array.from(document.querySelectorAll('input[type="hidden"]')).filter(el => /^entry.*/.test(el.name)).forEach(el => el.value = dataObject.value);
-                    }
-
+                // the confirmation page doesn't have values to fill
+                if (dataObject.hasOwnProperty('value')) {
                     // either we explicitly set the selector or we try to find the visual control by text value
                     let element;
                     if (dataObject.hasOwnProperty('selector')) {
@@ -173,9 +173,10 @@ async function injectCode(tabId) {
                         element = document.querySelector(`[data-value="${dataObject.value}"]`);
                     }
 
+                    // EXIT if we have data value but can't find a related element on the page
                     if (!element) {
                         console.error(`Element not found for pageId ${dataObject.pageId}`, 'selector: ', dataObject.selector, 'handleVisualByValue: ', dataObject.handleVisualByValue);
-                        break;
+                        return;
                     }
 
                     // emulate user action on form control
@@ -185,15 +186,15 @@ async function injectCode(tabId) {
                         bubbles: true,
                         cancelable: true
                     }));
-
-                    // if (pageId === 1) break;
-
-                    await sleep(500);
-
-                    // click Next/Submit button
-                    const buttons = document.querySelectorAll('.freebirdFormviewerViewNavigationLeftButtons [role="button"]');
-                    buttons[buttons.length - 1].click();
                 }
+
+                // todo MutationObserver!
+                await sleep(1500);
+
+                // click Next/Submit button
+                const buttons = document.querySelectorAll('.freebirdFormviewerViewNavigationLeftButtons [role="button"]');
+                // const nextButtonIndex = buttons.length > 0 ? buttons.length - 1 : 0;
+                buttons[buttons.length - 1].click();
 
 
             },
