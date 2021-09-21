@@ -2,7 +2,7 @@ import {config} from "./config.js";
 
 const play = async file => {
     try {
-        const mediaEl = await new Audio(file);
+        var mediaEl = await new Audio(file);
     } catch (error) {
         console.warn('BAC error: ', error);
         return;
@@ -15,7 +15,6 @@ const play = async file => {
         console.log('Sound played.')
     });
 }
-
 
 export const utils = {
     //    TODO animate icon on play
@@ -43,9 +42,9 @@ export const utils = {
             // func: async (soundFile, serializedPlayFunc) => await new Function( 'return ' + serializedPlayFunc)().apply(null, [soundFile])
 
             args: [soundFile],
-            func: async file => {
+            func: async soundFile => {
                 try {
-                    const mediaEl = await new Audio(file);
+                    var mediaEl = await new Audio(soundFile);
                 } catch (error) {
                     console.warn('BAC error: ', error);
                     return;
