@@ -84,7 +84,7 @@ async function alarmListener(alarm) {
 async function defaultActionListener() {
     log('Default action called');
 
-    let tab = await chrome.tabs.create({url: config.formUrl, active: false})
+    let tab = await chrome.tabs.create({url: config.formUrl,/* active: false*/})
     if (!tab.url) await onTabUrlUpdated(tab.id); // chrome bug
 
     createdTabId = tab.id;
