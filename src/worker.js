@@ -11,6 +11,14 @@ chrome.notifications.onButtonClicked.addListener(defaultActionListener)
 chrome.tabs.onUpdated.addListener(tabUpdateListener)
 chrome.tabs.onRemoved.addListener(() => {
 });
+chrome.runtime.onMessage.addListener(
+    async function (request, sender, sendResponse) {
+        if (request.lastPageReached) {
+            await chrome.tabs.remove(request.tabId);
+            chrome.runtime.port.disconnect(); // unload service worker
+        }
+    })
+
 
 function storageValueChangedListener(changes, areaName) {
     console.log('changes ', changes);
@@ -64,19 +72,19 @@ async function alarmListener(alarm) {
     showNotification(
         config.notification.name,
         notificationOptions,
-        function () {
+        async function () {
             log('Notification showed. Can play: ' + userOptions.canPlay);
             if (!userOptions.canPlay) {
                 return;
             }
-            utils.playSound();
+            await utils.playSound();
         });
 }
 
 async function defaultActionListener() {
     log('Default action called');
 
-    let tab = await chrome.tabs.create({url: config.formUrl})
+    let tab = await chrome.tabs.create({url: config.formUrl, active: false})
     if (!tab.url) await onTabUrlUpdated(tab.id); // chrome bug
 
     createdTabId = tab.id;
@@ -132,20 +140,45 @@ async function injectCode(tabId) {
 
     await chrome.scripting.executeScript({
             target: {tabId: tabId},
-            args: [inputData],
-            func: async (inputData) => {
+            args: [inputData, tabId],
+            func: async (inputData, tabId) => {
 
-                console.log('code injected')
+                console.log('code injected');
 
+                // last form page -> close the tab
+                if (document.querySelector('.freebirdFormviewerViewResponseConfirmationMessage')) {
+                    chrome.runtime.sendMessage({lastPageReached: true, tabId: tabId}, function (response) {
+                        console.log(response);
+                    });
+                    return;
+                }
+
+                // thanks https://gist.github.com/jwilson8767/db379026efcbd932f64382db4b02853e
+                const elementReadyAsync = function (selector) {
+                    return new Promise((resolve, reject) => {
+                        const element = document.querySelector(selector);
+                        if (element) resolve(element);
+                        new MutationObserver((mutationRecords, observer) => {
+                            // Query for elements matching the specified selector
+                            const element = document.querySelector(selector);
+                            if (element) {
+                                resolve(element);
+                                //Once we have resolved we don't need the observer anymore.
+                                observer.disconnect();
+                            }
+                        })
+                            .observe(document.documentElement, {
+                                childList: true,
+                                subtree: true
+                            });
+                    });
+                }
                 const pageHistoryString = document.querySelector('[name=pageHistory]').value;
                 const pageId = parseInt(pageHistoryString.slice(pageHistoryString.lastIndexOf(',') + 1));
                 const sleep = time => new Promise(resolve => setTimeout(resolve, time))
 
                 console.log('DOM pageId:', pageId, 'inputData ', inputData);
                 console.log('Input Data loop starts here');
-
-                // todo move to dom observer
-                await sleep(1500);
 
                 const dataObject = inputData.find(dataObject => dataObject.pageId === pageId);
                 console.log('pageId matched. dataObject in the Input Data: ', dataObject);
@@ -164,13 +197,16 @@ async function injectCode(tabId) {
 
                 // the confirmation page doesn't have values to fill
                 if (dataObject.hasOwnProperty('value')) {
+
+                    await sleep(700);
+
                     // either we explicitly set the selector or we try to find the visual control by text value
                     let element;
                     if (dataObject.hasOwnProperty('selector')) {
-                        element = document.querySelector(dataObject.selector);
+                        element = await elementReadyAsync(dataObject.selector);
                         element.value = dataObject.value;
                     } else if (dataObject.handleVisualByValue) {
-                        element = document.querySelector(`[data-value="${dataObject.value}"]`);
+                        element = await elementReadyAsync(`[data-value="${dataObject.value}"]`);
                     }
 
                     // EXIT if we have data value but can't find a related element on the page
@@ -178,6 +214,8 @@ async function injectCode(tabId) {
                         console.error(`Element not found for pageId ${dataObject.pageId}`, 'selector: ', dataObject.selector, 'handleVisualByValue: ', dataObject.handleVisualByValue);
                         return;
                     }
+
+                    await sleep(1000);
 
                     // emulate user action on form control
                     const eventType = element.getAttribute('role') === 'radio' ? 'click' : 'input';
@@ -188,15 +226,13 @@ async function injectCode(tabId) {
                     }));
                 }
 
-                // todo MutationObserver!
-                await sleep(1500);
+                // mutation observer event fires multiple times after event with the same changes, so we need to wait anyway
+                await sleep(700);
 
                 // click Next/Submit button
                 const buttons = document.querySelectorAll('.freebirdFormviewerViewNavigationLeftButtons [role="button"]');
                 // const nextButtonIndex = buttons.length > 0 ? buttons.length - 1 : 0;
                 buttons[buttons.length - 1].click();
-
-
             },
         },
         (injectionResults) => {
